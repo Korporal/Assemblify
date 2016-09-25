@@ -37,7 +37,7 @@
          must be a menu. -->
     <Groups>
       <Group guid="guidTestCommandPackageCmdSet" id="MyMenuGroup" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ITEMNODE"/>
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE"/>
       </Group>
     </Groups>
 
@@ -56,7 +56,7 @@
         <Parent guid="guidTestCommandPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>Invoke TestCommand</ButtonText>
+          <ButtonText>Assemblify</ButtonText>
         </Strings>
       </Button>
     </Buttons>
