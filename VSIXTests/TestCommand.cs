@@ -20,7 +20,8 @@ namespace VSIXTests
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int CommandId = 0x0100;
+        public const int Publish  = 0x0100;
+        public const int PublishTo = 0x0101;
 
         /// <summary>
         /// Command menu group (command set GUID).
@@ -49,9 +50,8 @@ namespace VSIXTests
             OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
             {
-                var menuCommandID = new CommandID(CommandSet, CommandId);
-                var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
-                commandService.AddCommand(menuItem);
+                commandService.AddCommand(new MenuCommand(this.MenuItemCallback, new CommandID(CommandSet, Publish)));
+                commandService.AddCommand(new MenuCommand(this.MenuItemCallback, new CommandID(CommandSet, PublishTo)));
             }
         }
 
@@ -93,8 +93,16 @@ namespace VSIXTests
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
+            string title;
+
+            var command = (MenuCommand)(sender);
+
             string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
-            string title = "TestCommand";
+
+            if (command.CommandID.ID == Publish)
+                title = "Publish";
+            else
+                title = "Publish To";
 
             // Show a message box to prove we were here
             VsShellUtilities.ShowMessageBox(
