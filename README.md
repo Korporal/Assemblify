@@ -1,7 +1,7 @@
 # Assemblify
 Platform for managing internal .Net assembly libraries.
 
-This repo contains experimental code which I am evaluating as the basis for an intranet based assembly publishing system.
+This repo contains experimental code which I'm evaluating as the basis for an intranet based assembly publishing system.
 
 Rather than uisng NuGet references and creating NuGet packages for our own internally generated assemblies that we have no intention of ever sharing, it is far simpler to just set project references to assemblies in a folder somewhere on the network. This code is intended to be the basis for this kind of system.
 
