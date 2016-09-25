@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Text;
 
 namespace Assemblify.Core
 {
@@ -14,7 +15,7 @@ namespace Assemblify.Core
             if (File.Exists(Filepath) == false)
                 throw new ArgumentException("The specified asssembly file does not exist.");
 
-            var a = Assembly.ReflectionOnlyLoadFrom(Filepath);
+            var a = Assembly.ReflectionOnlyLoadFrom(Filepath);  // we have no intention of executing this code.
 
             var d = a.GetReferencedAssemblies(); // unused - just exploring.
 
@@ -63,16 +64,19 @@ namespace Assemblify.Core
                 var s = File.OpenRead(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName));
 
                 if (s.Length != Length)
-                    throw new InvalidOperationException("An assembly with these characteristics has already been published that differs from the current assembly.");
+                    throw new InvalidOperationException("An assembly with these characteristics has already been published that has a different length to the current assembly.");
+
+                // NOTE: We could create another AssemblyFile instance from the remote file, but if it is the same as 
+                // the one we're being asked to publish then this will fail because .Net will not load an assembly more than once.
 
                 Byte[] buffer = new Byte[s.Length];
 
                 s.Read(buffer, 0, (int)s.Length);
 
                 if (StructuralComparisons.StructuralEqualityComparer.Equals(Contents, buffer) == false)
-                    throw new InvalidOperationException("An assembly with these characteristics has already been published that differs from the current assembly.");
+                    throw new InvalidOperationException("An assembly with these characteristics has already been published that has a different binary content to the current assembly.");
 
-                throw new InvalidOperationException("This assembly has already been published.");
+                return; // Fine, the assembly's already published and is identical to the one we're trying to publish.
             }
 
             if (Directory.Exists(Folderpath) == false)
@@ -95,6 +99,11 @@ namespace Assemblify.Core
             File.SetAttributes(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName), FileAttributes.ReadOnly);
         }
 
+        /// <summary>
+        /// Indicates whether this assembly has already been published to the designated folder.
+        /// </summary>
+        /// <param name="Folderpath"></param>
+        /// <returns></returns>
         public bool IsPublished (string Folderpath)
         {
             return (File.Exists(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName)));
@@ -113,14 +122,14 @@ namespace Assemblify.Core
             if (Parts.Length == 1)
                 return Parts[0].ToString();
 
-            string leader = Parts[0].ToString();
+            StringBuilder leader = new StringBuilder(Parts[0].ToString());
 
             foreach (object part in Parts.Skip(1))
             {
-                leader = leader + @"\" + part.ToString();
+                leader.Append(@"\" + part.ToString());
             }
 
-            return leader;
+            return leader.ToString();
         }
 
         public AssemblyName Name { get; private set; }
@@ -132,6 +141,9 @@ namespace Assemblify.Core
         public string TargetFramework { get; private set; }
         public int Length { get; private set; }
         public string FileName { get; private set; }
+        /// <summary>
+        /// Returns the assembly's file name without the .dll extension.
+        /// </summary>
         public string FileTitle
         {
             get
