@@ -14,12 +14,12 @@ namespace TestAssemblify
 
             // If this assembly has not yet been published into the designated folder, then publish it.
 
-            if (a.IsPublished(assembly_folder) == false)
-                a.Publish(assembly_folder);
+            if (a.IsPublished() == false)
+                a.Publish();
 
             // Did the whole process actually work?
 
-            bool p = a.IsPublished(assembly_folder);
+            bool p = a.IsPublished();
         }
     }
 }

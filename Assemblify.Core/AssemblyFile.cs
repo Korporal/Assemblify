@@ -29,10 +29,15 @@ namespace Assemblify.Core
 
             AssemblyFile file = new AssemblyFile();
 
-            var s = a.CustomAttributes.Where(t => t.AttributeType == typeof(TargetFrameworkAttribute));
+            var targetAttribute = a.CustomAttributes.Where(t => t.AttributeType == typeof(TargetFrameworkAttribute));
 
-            if (s.Any())
-                file.TargetFramework = (string) ((CustomAttributeData)(s.First())).NamedArguments.Where(n => n.MemberName == "FrameworkDisplayName").First().TypedValue.Value;
+            if (targetAttribute.Any())
+                file.TargetFramework = (string) ((CustomAttributeData)(targetAttribute.First())).NamedArguments.Where(n => n.MemberName == "FrameworkDisplayName").First().TypedValue.Value;
+
+            var folderAttribute = a.CustomAttributes.Where(t => t.AttributeType == Type.ReflectionOnlyGetType(typeof(AssemblifyPublishFolderAttribute).AssemblyQualifiedName,true,false));
+
+            if (folderAttribute.Any())
+                file.DefaultPublishFolder = (string)((CustomAttributeData)(folderAttribute.First())).ConstructorArguments.First().Value;
 
             file.Name = a.GetName();
             file.Contents = buffer;
@@ -48,6 +53,12 @@ namespace Assemblify.Core
 
         }
 
+        public string DefaultPublishFolder { get; private set; }
+
+        public void Publish()
+        {
+            Publish(DefaultPublishFolder);
+        }
         /// <summary>
         /// Create a copy of the assembly in the target folder.
         /// </summary>
@@ -57,6 +68,9 @@ namespace Assemblify.Core
         /// <param name="Folderpath"></param>
         public void Publish(string Folderpath)
         {
+            if (String.IsNullOrWhiteSpace(Folderpath))
+                throw new ArgumentException("The specified publish folder path is invalied.", nameof(Folderpath));
+            
             // Firstly, does this assembly already exist in this folder?
 
             if (IsPublished(Folderpath))
@@ -99,6 +113,11 @@ namespace Assemblify.Core
             File.SetAttributes(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName), FileAttributes.ReadOnly);
         }
 
+        public bool IsPublished()
+        {
+            return IsPublished(DefaultPublishFolder);
+        }
+
         /// <summary>
         /// Indicates whether this assembly has already been published to the designated folder.
         /// </summary>
@@ -106,6 +125,9 @@ namespace Assemblify.Core
         /// <returns></returns>
         public bool IsPublished (string Folderpath)
         {
+            if (String.IsNullOrWhiteSpace(Folderpath))
+                throw new ArgumentException("The specified publish folder path is invalied.", nameof(Folderpath));
+
             return (File.Exists(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName)));
         }
 
