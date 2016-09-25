@@ -30,14 +30,22 @@
     called "command set" and is used to group different command inside a logically related
     group; your package should define its own command set in order to avoid collisions
     with command ids defined by other packages. -->
-
+    <Menus>
+      <Menu guid="guidTestCommandPackageCmdSet" id="TopLevelMenu" priority="0x700" type="Menu">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_START" />
+        <Strings>
+          <ButtonText>Assemblify</ButtonText>
+          <CommandName>Assemblify</CommandName>
+        </Strings>
+      </Menu>
+    </Menus>
     <!-- In this section you can define new menu groups. A menu group is a container for
          other menus or buttons (commands); from a visual point of view you can see the
          group as the part of a menu contained between two lines. The parent of a group
          must be a menu. -->
     <Groups>
       <Group guid="guidTestCommandPackageCmdSet" id="MyMenuGroup" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE"/>
+        <Parent guid="guidTestCommandPackageCmdSet" id="TopLevelMenu"/>
       </Group>
     </Groups>
 
@@ -56,9 +64,17 @@
         <Parent guid="guidTestCommandPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>Assemblify</ButtonText>
+          <ButtonText>Publish</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidTestCommandPackageCmdSet" id="TestCommandId2" priority="0x0100" type="Button">
+        <Parent guid="guidTestCommandPackageCmdSet" id="MyMenuGroup" />
+        <Icon guid="guidImages" id="bmpPic1" />
+        <Strings>
+          <ButtonText>Publish To</ButtonText>
+        </Strings>
+      </Button>
+
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -80,6 +96,8 @@
     <GuidSymbol name="guidTestCommandPackageCmdSet" value="{bbf15d13-4d79-4433-9d92-eee1bfe7ab47}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="TestCommandId" value="0x0100" />
+      <IDSymbol name="TestCommandId2" value="0x0101" />
+      <IDSymbol name="TopLevelMenu" value="0x1021"/>
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{d27286de-4544-4e33-968b-997d1cda6aad}" >
