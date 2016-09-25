@@ -50,9 +50,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj">
+    <ProjectReference Include="..\Assemblify.Core\Assemblify.Core.csproj">
       <Project>{448e8993-6c8d-4a18-bd69-6831da04ecd8}</Project>
-      <Name>Core</Name>
+      <Name>Assemblify.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

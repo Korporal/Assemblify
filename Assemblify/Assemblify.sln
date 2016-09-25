@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assemblify", "Assemblify.csproj", "{8735E245-AB28-45A5-B7FC-55E7909B99AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "..\Core\Core.csproj", "{448E8993-6C8D-4A18-BD69-6831DA04ECD8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assemblify.Core", "..\Assemblify.Core\Assemblify.Core.csproj", "{448E8993-6C8D-4A18-BD69-6831DA04ECD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

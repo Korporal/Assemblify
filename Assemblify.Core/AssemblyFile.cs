@@ -8,7 +8,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core
+namespace Assemblify.Core
 {
     public sealed class AssemblyFile
     {
