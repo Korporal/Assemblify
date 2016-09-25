@@ -9,4 +9,6 @@ Publishing an assembly in a system like this will simply mean right-click on a V
 
 Consuming an assembly will consists of simply uisng the "Add Reference" dialog in VS and browing the assemblify folder and selecting the desired assembly.
 
-Naturally a BS extension is called for sooner or later.
+Naturally a VS extension is called for sooner or later.
+
+By supporting assembly level attributes too, we can simplify the workflow somewhat when it comes to publishing assemblies.
