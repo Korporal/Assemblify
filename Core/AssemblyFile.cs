@@ -63,7 +63,7 @@ namespace Core
 
             if (IsPublished(Folderpath))
             {
-                var s = File.OpenRead(Pathify(Folderpath, FileName, TargetFramework, Name.Version, FileName));
+                var s = File.OpenRead(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName));
 
                 if (s.Length != Length)
                     throw new InvalidOperationException("An assembly with these characteristics has already been published that differs from the current assembly.");
@@ -81,26 +81,26 @@ namespace Core
             if (Directory.Exists(Folderpath) == false)
                 throw new InvalidOperationException("The specified assemblify folder does not exist.");
 
-            if (Directory.Exists(Pathify(Folderpath, FileName)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileName));
+            if (Directory.Exists(Pathify(Folderpath, FileTitle)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileTitle));
 
-            if (Directory.Exists(Pathify(Folderpath, FileName, TargetFramework)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileName, TargetFramework));
+            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework));
 
-            if (Directory.Exists(Pathify(Folderpath, FileName, TargetFramework, Name.Version)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileName, TargetFramework, Name.Version));
+            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version));
 
-            using (var stream = File.Create(Pathify(Folderpath, FileName, TargetFramework, Name.Version, FileName)))
+            using (var stream = File.Create(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName)))
             {
                 stream.Write(Contents, 0, Length);
             }
 
-            File.SetAttributes(Pathify(Folderpath, FileName, TargetFramework, Name.Version, FileName), FileAttributes.ReadOnly);
+            File.SetAttributes(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName), FileAttributes.ReadOnly);
         }
 
         public bool IsPublished (string Folderpath)
         {
-            return (File.Exists(Pathify(Folderpath, FileName, TargetFramework, Name.Version, FileName)));
+            return (File.Exists(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName)));
         }
 
         /// <summary>
@@ -135,5 +135,12 @@ namespace Core
         public string TargetFramework { get; private set; }
         public int Length { get; private set; }
         public string FileName { get; private set; }
+        public string FileTitle
+        {
+            get
+            {
+                return Path.GetFileNameWithoutExtension(FileName);
+            }
+        }
     }
 }
