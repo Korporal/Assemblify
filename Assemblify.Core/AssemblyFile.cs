@@ -34,6 +34,7 @@ namespace Assemblify.Core
             if (targetAttribute.Any())
                 file.TargetFramework = (string) ((CustomAttributeData)(targetAttribute.First())).NamedArguments.Where(n => n.MemberName == "FrameworkDisplayName").First().TypedValue.Value;
 
+            // ReflectionOnlyType was new to me, a bit fiddly but this gives us what we need:
             var folderAttribute = a.CustomAttributes.Where(t => t.AttributeType == Type.ReflectionOnlyGetType(typeof(AssemblifyPublishFolderAttribute).AssemblyQualifiedName,true,false));
 
             if (folderAttribute.Any())
