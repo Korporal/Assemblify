@@ -1,4 +1,4 @@
-# assemblify
+# Assemblify
 Platform for managing internal .Net assembly libraries.
 
 This repo contains experimental code which I am evaluating as the basis for an intranet based assembly publishing system.
