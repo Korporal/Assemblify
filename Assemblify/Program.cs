@@ -14,7 +14,7 @@ namespace TestAssemblify
         {
             string assembly_folder = @"E:\assemblify";
 
-            var a = AssemblyFile.Create(@"E:\Git\Repos\Github\assemblify\Core\bin\Debug\Assemblify.Core.dll");
+            var a = AssemblyFile.Create(@"E:\Git\Repos\Github\assemblify\Assemblify.Core\bin\Debug\Assemblify.Core.dll");
 
             if (a.IsPublished(assembly_folder) == false)
                 a.Publish(assembly_folder);
