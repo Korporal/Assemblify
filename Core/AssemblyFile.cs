@@ -18,18 +18,23 @@ namespace Core
                 throw new ArgumentException("The specified asssembly file does not exist.");
 
             var a = Assembly.ReflectionOnlyLoadFrom(Filepath);
-            var b = File.OpenRead(Filepath);
 
-            Byte[] buffer = new Byte[b.Length];
+            var d = a.GetReferencedAssemblies(); // unused - just exploring.
 
-            b.Read(buffer, 0, (int) b.Length);
+            Byte[] buffer;
+
+            using (var b = File.OpenRead(Filepath))
+            {
+                buffer = new Byte[b.Length];
+                b.Read(buffer, 0, (int) b.Length);
+            }
 
             AssemblyFile file = new AssemblyFile();
 
             var s = a.CustomAttributes.Where(t => t.AttributeType == typeof(TargetFrameworkAttribute));
 
             if (s.Any())
-                file.Target = (string) ((CustomAttributeData)(s.First())).NamedArguments.Where(n => n.MemberName == "FrameworkDisplayName").First().TypedValue.Value;
+                file.TargetFramework = (string) ((CustomAttributeData)(s.First())).NamedArguments.Where(n => n.MemberName == "FrameworkDisplayName").First().TypedValue.Value;
 
             file.Name = a.GetName();
             file.Contents = buffer;
@@ -56,40 +61,69 @@ namespace Core
         {
             // Firstly, does this assembly already exist in this folder?
 
-            if (File.Exists(Folderpath + @"\" + FileName + @"\" + Target + @"\" + Name.Version.ToString() + @"\" + FileName))
+            if (IsPublished(Folderpath))
             {
-                var s = File.OpenRead(Folderpath + @"\" + FileName + @"\" + Target + @"\" + Name.Version.ToString() + @"\" + FileName);
+                var s = File.OpenRead(Pathify(Folderpath, FileName, TargetFramework, Name.Version, FileName));
 
                 if (s.Length != Length)
-                    throw new InvalidOperationException("An assembly with the characteristics has already been published that differs from the current assembly.");
+                    throw new InvalidOperationException("An assembly with these characteristics has already been published that differs from the current assembly.");
 
                 Byte[] buffer = new Byte[s.Length];
 
                 s.Read(buffer, 0, (int)s.Length);
 
                 if (StructuralComparisons.StructuralEqualityComparer.Equals(Contents, buffer) == false)
-                    throw new InvalidOperationException("An assembly with the characteristics has already been published that differs from the current assembly.");
+                    throw new InvalidOperationException("An assembly with these characteristics has already been published that differs from the current assembly.");
 
                 throw new InvalidOperationException("This assembly has already been published.");
             }
 
-
             if (Directory.Exists(Folderpath) == false)
                 throw new InvalidOperationException("The specified assemblify folder does not exist.");
 
-            if (Directory.Exists(Folderpath + @"\" + FileName) == false)
-                Directory.CreateDirectory(Folderpath + @"\" + FileName);
+            if (Directory.Exists(Pathify(Folderpath, FileName)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileName));
 
-            if (Directory.Exists(Folderpath + @"\" + FileName + @"\" + Target) == false)
-                Directory.CreateDirectory(Folderpath + @"\" + FileName + @"\" + Target);
+            if (Directory.Exists(Pathify(Folderpath, FileName, TargetFramework)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileName, TargetFramework));
 
-            if (Directory.Exists(Folderpath + @"\" + FileName + @"\" + Target + @"\" + Name.Version.ToString()) == false)
-                Directory.CreateDirectory(Folderpath + @"\" + FileName + @"\" + Target + @"\" + Name.Version.ToString());
+            if (Directory.Exists(Pathify(Folderpath, FileName, TargetFramework, Name.Version)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileName, TargetFramework, Name.Version));
 
-            using (var stream = File.Create(Folderpath + @"\" + FileName + @"\" + Target + @"\" + Name.Version.ToString() + @"\" + FileName))
+            using (var stream = File.Create(Pathify(Folderpath, FileName, TargetFramework, Name.Version, FileName)))
             {
                 stream.Write(Contents, 0, Length);
             }
+
+            File.SetAttributes(Pathify(Folderpath, FileName, TargetFramework, Name.Version, FileName), FileAttributes.ReadOnly);
+        }
+
+        public bool IsPublished (string Folderpath)
+        {
+            return (File.Exists(Pathify(Folderpath, FileName, TargetFramework, Name.Version, FileName)));
+        }
+
+        /// <summary>
+        /// Creates Windows paths from a set of parts.
+        /// </summary>
+        /// <param name="Parts"></param>
+        /// <returns></returns>
+        private string Pathify(params object[] Parts)
+        {
+            if (Parts.Length == 0)
+                throw new ArgumentException("The number of parts must be greater than zero.");
+
+            if (Parts.Length == 1)
+                return Parts[0].ToString();
+
+            string leader = Parts[0].ToString();
+
+            foreach (object part in Parts.Skip(1))
+            {
+                leader = leader + @"\" + part.ToString();
+            }
+
+            return leader;
         }
 
         public AssemblyName Name { get; private set; }
@@ -98,7 +132,7 @@ namespace Core
         /// The version of the CLR that was used when the asssembly was compiled.
         /// </summary>
         public string Runtime { get; private set; }
-        public string Target { get; private set; }
+        public string TargetFramework { get; private set; }
         public int Length { get; private set; }
         public string FileName { get; private set; }
     }

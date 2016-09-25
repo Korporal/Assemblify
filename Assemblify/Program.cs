@@ -12,10 +12,14 @@ namespace Assemblify
     {
         static void Main(string[] args)
         {
+            string assembly_folder = @"E:\assemblify";
+
             var a = AssemblyFile.Create(@"E:\Git\Repos\Github\assemblify\Core\bin\Debug\Core.dll");
 
-            a.Publish(@"E:\assemblify");
+            if (a.IsPublished(assembly_folder) == false)
+                a.Publish(assembly_folder);
 
+            bool p = a.IsPublished(assembly_folder);
         }
     }
 }
