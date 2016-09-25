@@ -14,6 +14,8 @@ namespace Assemblify
         {
             var a = AssemblyFile.Create(@"E:\Git\Repos\Github\assemblify\Core\bin\Debug\Core.dll");
 
+            a.Publish(@"E:\assemblify");
+
         }
     }
 }
