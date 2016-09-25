@@ -39,6 +39,8 @@ namespace Assemblify.Core
 
             if (folderAttribute.Any())
                 file.DefaultPublishFolder = (string)((CustomAttributeData)(folderAttribute.First())).ConstructorArguments.First().Value;
+            else
+                file.DefaultPublishFolder = String.Empty;
 
             file.Name = a.GetName();
             file.Contents = buffer;
@@ -53,6 +55,8 @@ namespace Assemblify.Core
         {
 
         }
+
+        public bool HasDefaultPublishFolder { get { return DefaultPublishFolder != String.Empty; } }
 
         public string DefaultPublishFolder { get; private set; }
 

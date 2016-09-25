@@ -20,6 +20,8 @@ namespace TestAssemblify
             // Did the whole process actually work?
 
             bool p = a.IsPublished();
+
+
         }
     }
 }
