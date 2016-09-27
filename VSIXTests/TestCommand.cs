@@ -9,6 +9,9 @@ using System.ComponentModel.Design;
 using System.Globalization;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using EnvDTE;
+using System.Runtime.InteropServices;
+using Microsoft.VisualStudio;
 
 namespace VSIXTests
 {
@@ -20,8 +23,6 @@ namespace VSIXTests
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int Publish  = 0x0100;
-        public const int PublishTo = 0x0101;
 
         /// <summary>
         /// Command menu group (command set GUID).
@@ -50,8 +51,8 @@ namespace VSIXTests
             OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
             {
-                commandService.AddCommand(new MenuCommand(this.MenuItemCallback, new CommandID(CommandSet, Publish)));
-                commandService.AddCommand(new MenuCommand(this.MenuItemCallback, new CommandID(CommandSet, PublishTo)));
+                commandService.AddCommand(new MenuCommand(this.MenuItemCallback, new CommandID(CommandSet, Commands.Publish)));
+                commandService.AddCommand(new MenuCommand(this.MenuItemCallback, new CommandID(CommandSet, Commands.PublishTo)));
             }
         }
 
@@ -93,25 +94,70 @@ namespace VSIXTests
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            string title;
-
             var command = (MenuCommand)(sender);
 
-            string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
+            switch (command.CommandID.ID)
+            {
+                case (Commands.Publish):
+                    {
+                        Publish();
+                        return;
+                    }
+                case (Commands.PublishTo):
+                    {
+                        PublishTo();
+                        return;
+                    }
+            }
+        }
 
-            if (command.CommandID.ID == Publish)
-                title = "Publish";
-            else
-                title = "Publish To";
+        private void Publish()
+        {
+            DTE dte = (DTE)this.ServiceProvider.GetService(typeof(DTE));
 
-            // Show a message box to prove we were here
-            VsShellUtilities.ShowMessageBox(
-                this.ServiceProvider,
-                message,
-                title,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            Projects projects = dte.Solution.Projects;
+
+
+            IntPtr hierarchyPtr, selectionContainerPtr;
+            Object prjItemObject = null;
+            IVsMultiItemSelect mis;
+            uint prjItemId;
+            IVsMonitorSelection monitorSelection = (IVsMonitorSelection)Package.GetGlobalService(typeof(SVsShellMonitorSelection));
+            monitorSelection.GetCurrentSelection(out hierarchyPtr, out prjItemId, out mis, out selectionContainerPtr);
+            IVsHierarchy selectedHierarchy = Marshal.GetTypedObjectForIUnknown(hierarchyPtr, typeof(IVsHierarchy)) as IVsHierarchy;
+            if (selectedHierarchy != null)
+            {
+                ErrorHandler.ThrowOnFailure(selectedHierarchy.GetProperty(prjItemId, (int)__VSHPROPID.VSHPROPID_ExtObject, out prjItemObject));
+            }
+            Project selectedPrjItem = prjItemObject as Project;
+
+            foreach (var p in selectedPrjItem.ProjectItems)
+            {
+                ProjectItem item = (ProjectItem)(p);
+
+                string n = item.Name;
+                int c = item.FileCount;
+
+                if (n == "Properties")
+                {
+                    foreach (var f in item.ProjectItems)
+                    {
+                        ProjectItem item2 = (ProjectItem)(f);
+
+                        string nn = item2.Name;
+                        
+                    }
+                }
+            }
+
+
+        }
+
+        private void PublishTo()
+        {
+            // SEE: https://blog.mastykarz.nl/active-project-extending-visual-studio-sharepoint-development-tools-tip-1/
+
+            ;
         }
     }
 }
