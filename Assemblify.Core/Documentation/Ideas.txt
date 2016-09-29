@@ -3,3 +3,6 @@
 For example we can (in VS) provide a project RC -> Assemblify -> Publish as well as a project RC -> Assemblify -> Publish To.
 
 The 'Publish' will leverage the default folder specified in the assembly info, in fact we could disable this option if the attribute is absent.
+
+Note: http://blog.davidebbo.com/2011/01/nuget-versioning-part-1-taking-on-dll.html
+
