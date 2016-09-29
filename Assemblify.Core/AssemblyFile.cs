@@ -48,7 +48,6 @@ namespace Assemblify.Core
             file.Length = buffer.Length;
             file.FileName = Path.GetFileName(Filepath);
             return file;
-
         }
 
         private AssemblyFile()

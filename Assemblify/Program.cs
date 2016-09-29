@@ -6,11 +6,11 @@ namespace TestAssemblify
     {
         static void Main(string[] args)
         {
-            string assembly_folder = @"E:\assemblify";
+            string assembly_folder = @"C:\assemblify";
 
             // Create an Assemblify AssemblyFile object from a DLL's path:
 
-            var a = AssemblyFile.Create(@"..\..\..\Assemblify.Core\bin\Debug\Assemblify.Core.dll");
+            var a = AssemblyFile.Create(@"..\..\..\AssemblyFileInner\bin\Debug\AssemblyFileInner.dll");
 
             // If this assembly has not yet been published into the designated folder, then publish it.
 
@@ -20,8 +20,6 @@ namespace TestAssemblify
             // Did the whole process actually work?
 
             bool p = a.IsPublished();
-
-
         }
     }
 }
