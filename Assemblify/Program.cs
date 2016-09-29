@@ -10,7 +10,7 @@ namespace TestAssemblify
 
             // Create an Assemblify AssemblyFile object from a DLL's path:
 
-            var a = AssemblyFile.Create(@"E:\Git\Repos\Github\assemblify\Assemblify.Core\bin\Debug\Assemblify.Core.dll");
+            var a = AssemblyFile.Create(@"..\..\..\Assemblify.Core\bin\Debug\Assemblify.Core.dll");
 
             // If this assembly has not yet been published into the designated folder, then publish it.
 
