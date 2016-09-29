@@ -10,10 +10,21 @@ namespace Assemblify.Core
 {
     public sealed class AssemblyFile
     {
+        public static bool already_loaded = false;
+
         public static AssemblyFile Create(string Filepath)
         {
             if (File.Exists(Filepath) == false)
                 throw new ArgumentException("The specified asssembly file does not exist.");
+
+            if (already_loaded == false)
+            {
+                // To do reflection on custom attributes when those attributes are
+                // in another assembly, we must do a reflection-only load on the assembly 
+                // that defines the attribute classes, if that assembly is THIS assembly !
+                Assembly.ReflectionOnlyLoad(Assembly.GetExecutingAssembly().FullName);
+                already_loaded = true;
+            }
 
             var a = Assembly.ReflectionOnlyLoadFrom(Filepath);  // we have no intention of executing this code.
 

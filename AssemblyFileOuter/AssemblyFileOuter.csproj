@@ -7,8 +7,8 @@
     <ProjectGuid>{8CC55D25-7D19-4BA6-BC13-6CCD89AD366E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestAssemblyOuter</RootNamespace>
-    <AssemblyName>TestAssemblyOuter</AssemblyName>
+    <RootNamespace>AssemblyFileOuter</RootNamespace>
+    <AssemblyName>AssemblyFileOuter</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
