@@ -19,9 +19,9 @@ namespace Assemblify.Core
 
             if (already_loaded == false)
             {
-                // To do reflection on custom attributes when those attributes are
+                // To do reflection on custom attributes when those attributes are defined
                 // in another assembly, we must do a reflection-only load on the assembly 
-                // that defines the attribute classes, if that assembly is THIS assembly !
+                // that defines the attribute classes, even if that assembly is THIS assembly !
                 Assembly.ReflectionOnlyLoad(Assembly.GetExecutingAssembly().FullName);
                 already_loaded = true;
             }
