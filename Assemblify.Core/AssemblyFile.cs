@@ -12,7 +12,18 @@ namespace Assemblify.Core
     {
         public static bool already_loaded = false;
 
-        public static AssemblyFile Create(string Filepath)
+        /// <summary>
+        /// Creates an assembly file object by using the assembly name to search for the assembly in the assembly store.
+        /// </summary>
+        /// <param name="StorePath"></param>
+        /// <param name="Name"></param>
+        /// <returns></returns>
+        //public static AssemblyFile CreateFromName(string StorePath, AssemblyName Name)
+        //{
+        //    if (Directory.Exists(Pathify(StorePath, Name.Name, TargetFramework, Name.Version)) == false)
+
+        //}
+        public static AssemblyFile CreateFromFile(string Filepath)
         {
             if (File.Exists(Filepath) == false)
                 throw new ArgumentException("The specified asssembly file does not exist.");

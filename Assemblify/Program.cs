@@ -13,7 +13,7 @@ namespace TestAssemblify
 
             // Create an Assemblify AssemblyFile object from a DLL's path:
 
-            a = AssemblyFile.Create(@"..\..\..\AssemblyFileInner\bin\Debug\AssemblyFileInner.dll");
+            a = AssemblyFile.CreateFromFile(@"..\..\..\AssemblyFileInner\bin\Debug\AssemblyFileInner.dll");
 
             // If this assembly has not yet been published into the designated folder, then publish it.
 
@@ -24,7 +24,7 @@ namespace TestAssemblify
 
             p = a.IsPublished();
 
-            a = AssemblyFile.Create(@"..\..\..\AssemblyFileOuter\bin\Debug\AssemblyFileOuter.dll");
+            a = AssemblyFile.CreateFromFile(@"..\..\..\AssemblyFileOuter\bin\Debug\AssemblyFileOuter.dll");
 
             // If this assembly has not yet been published into the designated folder, then publish it.
 
