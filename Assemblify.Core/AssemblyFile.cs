@@ -37,9 +37,8 @@ namespace Assemblify.Core
                 already_loaded = true;
             }
 
-            var a = Assembly.ReflectionOnlyLoadFrom(Filepath);  // we have no intention of executing this code.
+            var assembly = Assembly.ReflectionOnlyLoadFrom(Filepath);  // we have no intention of executing this code.
 
-            var d = a.GetReferencedAssemblies(); // unused - just exploring.
 
             Byte[] buffer;
 
@@ -51,22 +50,27 @@ namespace Assemblify.Core
 
             AssemblyFile file = new AssemblyFile();
 
-            var targetAttribute = a.CustomAttributes.Where(t => t.AttributeType == typeof(TargetFrameworkAttribute));
+            var targetAttribute = assembly.CustomAttributes.Where(t => t.AttributeType == typeof(TargetFrameworkAttribute));
 
             if (targetAttribute.Any())
                 file.TargetFramework = (string) ((CustomAttributeData)(targetAttribute.First())).NamedArguments.Where(n => n.MemberName == "FrameworkDisplayName").First().TypedValue.Value;
 
+            // In assemblify (at this time) we do not support signed assemblies. 
+            // Here we consider all referenced assemblies that are not signed.
+
+            file.ReferencedAssemblies = assembly.GetReferencedAssemblies().Where(r => r.GetPublicKeyToken().Length == 0).Select(n => new AssemblyInfo(file.TargetFramework, n)).ToArray();
+
             // ReflectionOnlyType was new to me, a bit fiddly but this gives us what we need:
-            var folderAttribute = a.CustomAttributes.Where(t => t.AttributeType == Type.ReflectionOnlyGetType(typeof(AssemblifyPublishFolderAttribute).AssemblyQualifiedName,true,false));
+            var folderAttribute = assembly.CustomAttributes.Where(t => t.AttributeType == Type.ReflectionOnlyGetType(typeof(AssemblifyPublishFolderAttribute).AssemblyQualifiedName,true,false));
 
             if (folderAttribute.Any())
                 file.DefaultPublishFolder = (string)((CustomAttributeData)(folderAttribute.First())).ConstructorArguments.First().Value;
             else
                 file.DefaultPublishFolder = String.Empty;
 
-            file.Name = a.GetName();
+            file.Name = assembly.GetName();
             file.Contents = buffer;
-            file.Runtime = a.ImageRuntimeVersion;
+            file.Runtime = assembly.ImageRuntimeVersion;
             file.Length = buffer.Length;
             file.FileName = Path.GetFileName(Filepath);
             return file;
@@ -76,6 +80,8 @@ namespace Assemblify.Core
         {
 
         }
+
+        public AssemblyInfo[] ReferencedAssemblies { get; private set; }
 
         public bool HasDefaultPublishFolder { get { return DefaultPublishFolder != String.Empty; } }
 
