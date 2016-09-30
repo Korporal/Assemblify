@@ -11,6 +11,7 @@
     <AssemblyName>AssemblyFileOuter</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,8 +30,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Assemblify.Core">
+      <HintPath>..\Assemblify.Core\bin\Debug\Assemblify.Core.dll</HintPath>
+    </Reference>
     <Reference Include="AssemblyFileInner">
       <HintPath>..\AssemblyFileInner\bin\Debug\AssemblyFileInner.dll</HintPath>
     </Reference>
@@ -45,12 +51,6 @@
   <ItemGroup>
     <Compile Include="AssemblyFileOuter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Assemblify.Core\Assemblify.Core.csproj">
-      <Project>{448e8993-6c8d-4a18-bd69-6831da04ecd8}</Project>
-      <Name>Assemblify.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

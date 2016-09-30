@@ -9,7 +9,7 @@ namespace TestAssemblify
             bool p;
             AssemblyFile a;
 
-            string assembly_folder = @"C:\assemblify";
+            //string assembly_folder = @"C:\assemblify";
 
             // Create an Assemblify AssemblyFile object from a DLL's path:
 
