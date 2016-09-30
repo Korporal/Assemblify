@@ -57,8 +57,10 @@ namespace Assemblify.Core
 
             // In assemblify (at this time) we do not support signed assemblies. 
             // Here we consider all referenced assemblies that are not signed.
-
-            file.ReferencedAssemblies = assembly.GetReferencedAssemblies().Where(r => r.GetPublicKeyToken().Length == 0).Select(n => new AssemblyInfo(file.TargetFramework, n)).ToArray();
+            // We attach a 'max' framework version that's the target fraamework for the assemby being analyzed.
+            // The view being that no referenced assembly can legitimately target a higher version of the framework
+            // than the assembly being analyzed (is this always true?)
+            file.ReferencedAssemblies = assembly.GetReferencedAssemblies().Where(r => r.GetPublicKeyToken().Length == 0).Select(n => new AssemblyData(file.TargetFramework, n)).ToArray();
 
             // ReflectionOnlyType was new to me, a bit fiddly but this gives us what we need:
             var folderAttribute = assembly.CustomAttributes.Where(t => t.AttributeType == Type.ReflectionOnlyGetType(typeof(AssemblifyPublishFolderAttribute).AssemblyQualifiedName,true,false));
@@ -81,7 +83,7 @@ namespace Assemblify.Core
 
         }
 
-        public AssemblyInfo[] ReferencedAssemblies { get; private set; }
+        public AssemblyData[] ReferencedAssemblies { get; private set; }
 
         public bool HasDefaultPublishFolder { get { return DefaultPublishFolder != String.Empty; } }
 

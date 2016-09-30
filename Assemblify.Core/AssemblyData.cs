@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Assemblify.Core
 {
-    public sealed class AssemblyInfo
+    public sealed class AssemblyData
     {
-        public AssemblyInfo(string MaxFramework, AssemblyName AssemblyName)
+        public AssemblyData(string MaxFramework, AssemblyName AssemblyName)
         {
             this.MaxFramework = MaxFramework;
             this.AssemblyName = AssemblyName;
