@@ -12,7 +12,8 @@ namespace Assemblify.Core
     public sealed class AssemblyFile
     {
         private static char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-        public static bool already_loaded = false;
+        public static bool core_already_loaded = false;
+        public static Assembly core = null;
 
         /// <summary>
         /// Creates an assembly file object by using the assembly name to search for the assembly in the assembly store.
@@ -27,20 +28,20 @@ namespace Assemblify.Core
         //}
         public static AssemblyFile CreateFromFile(string Filepath)
         {
+
             if (File.Exists(Filepath) == false)
                 throw new ArgumentException("The specified asssembly file does not exist.");
 
-            if (already_loaded == false)
+            if (core_already_loaded == false)
             {
                 // To do reflection on custom attributes when those attributes are defined
                 // in another assembly, we must do a reflection-only load on the assembly 
                 // that defines the attribute classes, even if that assembly is THIS assembly !
-                Assembly.ReflectionOnlyLoad(Assembly.GetExecutingAssembly().FullName);
-                already_loaded = true;
+                core = Assembly.ReflectionOnlyLoad(Assembly.GetExecutingAssembly().FullName);
+                core_already_loaded = true;
             }
 
             var assembly = Assembly.ReflectionOnlyLoadFrom(Filepath);  // we have no intention of executing this code.
-
 
             Byte[] buffer;
 
@@ -66,7 +67,12 @@ namespace Assemblify.Core
             // We attach a 'max' framework version that's the target fraamework for the assemby being analyzed.
             // The view being that no referenced assembly can legitimately target a higher version of the framework
             // than the assembly being analyzed (is this always true?)
-            file.ReferencedAssemblies = assembly.GetReferencedAssemblies().Where(r => r.GetPublicKeyToken().Length == 0).Select(n => new AssemblyData(file.TargetFrameworkName, n)).ToArray();
+
+            var references = assembly.GetReferencedAssemblies();
+
+            file.UnsignedReferences = references.Where(r => r.GetPublicKeyToken().Length == 0).Select(n => new AssemblyData(file.TargetFramework, n)).ToArray();
+            file.SignedReferences = references.Where(r => r.GetPublicKeyToken().Length != 0).Select(n => new AssemblyData(file.TargetFramework, n)).ToArray();
+
 
             // ReflectionOnlyType was new to me, a bit fiddly but this gives us what we need:
             var folderAttribute = assembly.CustomAttributes.Where(t => t.AttributeType == Type.ReflectionOnlyGetType(typeof(AssemblifyPublishFolderAttribute).AssemblyQualifiedName,true,false));
@@ -88,9 +94,9 @@ namespace Assemblify.Core
         {
 
         }
+        public AssemblyData[] SignedReferences { get; private set; }
 
-        public AssemblyData[] ReferencedAssemblies { get; private set; }
-
+        public AssemblyData[] UnsignedReferences { get; private set; }
         public bool HasDefaultPublishFolder { get { return DefaultPublishFolder != String.Empty; } }
 
         public string DefaultPublishFolder { get; private set; }
@@ -168,7 +174,7 @@ namespace Assemblify.Core
             if (String.IsNullOrWhiteSpace(Folderpath))
                 throw new ArgumentException("The specified publish folder path is invalied.", nameof(Folderpath));
 
-            return (File.Exists(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version, FileName)));
+            return (File.Exists(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName)));
         }
 
 
@@ -217,14 +223,17 @@ namespace Assemblify.Core
             return leader.ToString();
         }
 
-        public static string[] GetCandidates (AssemblyName Name, Version TargetFramework, string Folderpath)
+        public static bool PublishedCandidateExists (AssemblyData Data, string Folderpath)
         {
-            List<string> candidates = new List<string>();
+            return Directory.Exists(Pathify(Folderpath, Data.AssemblyName.Name, Data.MaxFramework, Data.AssemblyName.Version)); // TODO: Don't simply assume the file itself exists, so revisit this logic..
+        }
 
-            if (Directory.Exists(Pathify(Folderpath, Name.Name, TargetFramework, Name.Version)))
-                candidates.Add(Pathify(Folderpath, Name.Name, TargetFramework, Name.Version));
+        public static string GetPublishedCandidate (AssemblyData Data, string Folderpath)
+        {
+            if (PublishedCandidateExists(Data, Folderpath) == false)
+                throw new ArgumentException("The specified assembly does not exist as a published assembly.");
 
-            return candidates.ToArray();
+            return Pathify(Folderpath, Data.AssemblyName.Name, Data.MaxFramework, Data.AssemblyName.Version, Data.AssemblyName.Name + ".dll");
 
             // TODO: Consider recursive uses here, ideally taking a single AssemblyFile and returning an array of AssemblyFile[] for each identified candidate DLL file.
         }
