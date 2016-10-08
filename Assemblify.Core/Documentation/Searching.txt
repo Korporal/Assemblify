@@ -9,4 +9,8 @@ This allows the runtime to pinpoint precisely that assembly.
 Auto Reference
 ==============
 
-If I have a project and use Assemblify to add a ref to some assembly, then we want to automatically add references to 
+If I have a project and use Assemblify to add a ref to some assembly, then we want to automatically add references to ...
+
+Add Reference
+=============
+Dont add a ref in asm .net_version X to another asm of .net_version > X these are incompatible.

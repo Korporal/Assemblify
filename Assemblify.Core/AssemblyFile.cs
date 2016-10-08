@@ -10,6 +10,7 @@ namespace Assemblify.Core
 {
     public sealed class AssemblyFile
     {
+        private static char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
         public static bool already_loaded = false;
 
         /// <summary>
@@ -53,14 +54,18 @@ namespace Assemblify.Core
             var targetAttribute = assembly.CustomAttributes.Where(t => t.AttributeType == typeof(TargetFrameworkAttribute));
 
             if (targetAttribute.Any())
-                file.TargetFramework = (string) ((CustomAttributeData)(targetAttribute.First())).NamedArguments.Where(n => n.MemberName == "FrameworkDisplayName").First().TypedValue.Value;
+            {
+                file.TargetFrameworkName = (string) ((CustomAttributeData)(targetAttribute.First())).NamedArguments.Where(n => n.MemberName == "FrameworkDisplayName").First().TypedValue.Value;
+                int first = file.TargetFrameworkName.IndexOfAny(digits);
+                file.TargetFramework = Version.Parse(file.TargetFrameworkName.Substring(first).Trim());
+            }
 
             // In assemblify (at this time) we do not support signed assemblies. 
             // Here we consider all referenced assemblies that are not signed.
             // We attach a 'max' framework version that's the target fraamework for the assemby being analyzed.
             // The view being that no referenced assembly can legitimately target a higher version of the framework
             // than the assembly being analyzed (is this always true?)
-            file.ReferencedAssemblies = assembly.GetReferencedAssemblies().Where(r => r.GetPublicKeyToken().Length == 0).Select(n => new AssemblyData(file.TargetFramework, n)).ToArray();
+            file.ReferencedAssemblies = assembly.GetReferencedAssemblies().Where(r => r.GetPublicKeyToken().Length == 0).Select(n => new AssemblyData(file.TargetFrameworkName, n)).ToArray();
 
             // ReflectionOnlyType was new to me, a bit fiddly but this gives us what we need:
             var folderAttribute = assembly.CustomAttributes.Where(t => t.AttributeType == Type.ReflectionOnlyGetType(typeof(AssemblifyPublishFolderAttribute).AssemblyQualifiedName,true,false));
@@ -109,7 +114,7 @@ namespace Assemblify.Core
 
             if (IsPublished(Folderpath))
             {
-                var s = File.OpenRead(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName));
+                var s = File.OpenRead(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version, FileName));
 
                 if (s.Length != Length)
                     throw new InvalidOperationException("An assembly with these characteristics has already been published that has a different length to the current assembly.");
@@ -133,18 +138,18 @@ namespace Assemblify.Core
             if (Directory.Exists(Pathify(Folderpath, FileTitle)) == false)
                 Directory.CreateDirectory(Pathify(Folderpath, FileTitle));
 
-            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework));
+            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFrameworkName)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFrameworkName));
 
-            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version));
+            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version));
 
-            using (var stream = File.Create(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName)))
+            using (var stream = File.Create(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version, FileName)))
             {
                 stream.Write(Contents, 0, Length);
             }
 
-            File.SetAttributes(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName), FileAttributes.ReadOnly);
+            File.SetAttributes(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version, FileName), FileAttributes.ReadOnly);
         }
 
         public bool IsPublished()
@@ -162,7 +167,7 @@ namespace Assemblify.Core
             if (String.IsNullOrWhiteSpace(Folderpath))
                 throw new ArgumentException("The specified publish folder path is invalied.", nameof(Folderpath));
 
-            return (File.Exists(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName)));
+            return (File.Exists(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version, FileName)));
         }
 
         /// <summary>
@@ -194,7 +199,8 @@ namespace Assemblify.Core
         /// The version of the CLR that was used when the asssembly was compiled.
         /// </summary>
         public string Runtime { get; private set; }
-        public string TargetFramework { get; private set; }
+        public string TargetFrameworkName { get; private set; }
+        public Version TargetFramework { get; private set; }
         public int Length { get; private set; }
         public string FileName { get; private set; }
         /// <summary>
