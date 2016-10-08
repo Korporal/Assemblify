@@ -35,6 +35,8 @@ namespace TestAssemblify
 
             p = a.IsPublished();
 
+            AssemblyFileOuter.AssemblyFileOuter s = new AssemblyFileOuter.AssemblyFileOuter(); 
+
         }
     }
 }

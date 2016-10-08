@@ -1,0 +1,12 @@
+﻿There's a lot of fidddly details to be borne in mind when designing something like Assemblify.
+
+Signed Assemblies
+=================
+Every assembly has a set of references to other asssemblies, if any of these referenced assemblies were signed (when everything was built) then the key info is also stored.
+
+This allows the runtime to pinpoint precisely that assembly.
+
+Auto Reference
+==============
+
+If I have a project and use Assemblify to add a ref to some assembly, then we want to automatically add references to 
