@@ -115,7 +115,7 @@ namespace Assemblify.Core
 
             if (IsPublished(Folderpath))
             {
-                var s = File.OpenRead(Pathify(Folderpath, FileTitle, TargetFramework.ToString(), Name.Version, FileName));
+                var s = File.OpenRead(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName));
 
                 if (s.Length != Length)
                     throw new InvalidOperationException("An assembly with these characteristics has already been published that has a different length to the current assembly.");
@@ -139,18 +139,18 @@ namespace Assemblify.Core
             if (Directory.Exists(Pathify(Folderpath, FileTitle)) == false)
                 Directory.CreateDirectory(Pathify(Folderpath, FileTitle));
 
-            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework.ToString())) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework.ToString()));
+            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework));
 
-            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework.ToString(), Name.Version)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework.ToString(), Name.Version));
+            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version));
 
-            using (var stream = File.Create(Pathify(Folderpath, FileTitle, TargetFramework.ToString(), Name.Version, FileName)))
+            using (var stream = File.Create(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName)))
             {
                 stream.Write(Contents, 0, Length);
             }
 
-            File.SetAttributes(Pathify(Folderpath, FileTitle, TargetFramework.ToString(), Name.Version, FileName), FileAttributes.ReadOnly);
+            File.SetAttributes(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName), FileAttributes.ReadOnly);
         }
 
         public bool IsPublished()
@@ -171,28 +171,6 @@ namespace Assemblify.Core
             return (File.Exists(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version, FileName)));
         }
 
-        /// <summary>
-        /// Creates Windows paths from a set of parts.
-        /// </summary>
-        /// <param name="Parts"></param>
-        /// <returns></returns>
-        private static string Pathify(params object[] Parts)
-        {
-            if (Parts.Length == 0)
-                throw new ArgumentException("The number of parts must be greater than zero.");
-
-            if (Parts.Length == 1)
-                return Parts[0].ToString();
-
-            StringBuilder leader = new StringBuilder(Parts[0].ToString());
-
-            foreach (object part in Parts.Skip(1))
-            {
-                leader.Append(@"\" + part.ToString());
-            }
-
-            return leader.ToString();
-        }
 
         public AssemblyName Name { get; private set; }
         public Byte[] Contents { get; private set; }
@@ -216,14 +194,39 @@ namespace Assemblify.Core
         }
 
         #region Static Methods and Properties
+        /// <summary>
+        /// Creates Windows paths from a set of parts.
+        /// </summary>
+        /// <param name="Parts"></param>
+        /// <returns></returns>
+        private static string Pathify(params object[] Parts)
+        {
+            if (Parts.Length == 0)
+                throw new ArgumentException("The number of parts must be greater than zero.");
+
+            if (Parts.Length == 1)
+                return Parts[0].ToString();
+
+            StringBuilder leader = new StringBuilder(Parts[0].ToString());
+
+            foreach (object part in Parts.Skip(1))
+            {
+                leader.Append(@"\" + part.ToString());
+            }
+
+            return leader.ToString();
+        }
+
         public static string[] GetCandidates (AssemblyName Name, Version TargetFramework, string Folderpath)
         {
             List<string> candidates = new List<string>();
 
-            if (Directory.Exists(Pathify(Folderpath, Name.Name, TargetFramework.ToString(), Name.Version)))
-                candidates.Add(Pathify(Folderpath, Name.Name, TargetFramework.ToString(), Name.Version));
+            if (Directory.Exists(Pathify(Folderpath, Name.Name, TargetFramework, Name.Version)))
+                candidates.Add(Pathify(Folderpath, Name.Name, TargetFramework, Name.Version));
 
             return candidates.ToArray();
+
+            // TODO: Consider recursive uses here, ideally taking a single AssemblyFile and returning an array of AssemblyFile[] for each identified candidate DLL file.
         }
         #endregion
     }
