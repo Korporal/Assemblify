@@ -14,3 +14,11 @@ If I have a project and use Assemblify to add a ref to some assembly, then we wa
 Add Reference
 =============
 Dont add a ref in asm .net_version X to another asm of .net_version > X these are incompatible.
+
+Project assembly references
+===========================
+
+It seems that the references that appear in a new project are not actually needed (they seem to be some basic assumed set). Furthermore the references that we see
+in a project in VS do not appear in the compiled assemblies list (referenced assemblies). Of course many even simple programs may end up using stuff within the basic set and then they will appear.
+
+Only the assemblies ACTUALLY directly rerenced by generated code will appears in the referenced assemblies array.
