@@ -22,3 +22,14 @@ It seems that the references that appear in a new project are not actually neede
 in a project in VS do not appear in the compiled assemblies list (referenced assemblies). Of course many even simple programs may end up using stuff within the basic set and then they will appear.
 
 Only the assemblies ACTUALLY directly rerenced by generated code will appears in the referenced assemblies array.
+
+Probing
+=======
+
+We need to probe using a set of rules, here they are:
+
+1. Does the exact required DLL exist, if so use that.
+2. Do versions of the required DLL exits even if not same FW?
+   If so return highest FW version that's lower than the ref FW version
+
+

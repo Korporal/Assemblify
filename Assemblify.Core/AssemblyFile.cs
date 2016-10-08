@@ -141,21 +141,27 @@ namespace Assemblify.Core
             if (Directory.Exists(Folderpath) == false)
                 throw new InvalidOperationException("The specified assemblify folder does not exist.");
 
-            if (Directory.Exists(Pathify(Folderpath, FileTitle)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileTitle));
+            var p1 = Pathify(Folderpath, FileTitle);
 
-            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework));
+            if (Directory.Exists(p1) == false)
+                Directory.CreateDirectory(p1);
 
-            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version));
+            var p2 = Pathify(p1, Name.Version);
 
-            using (var stream = File.Create(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName)))
+            if (Directory.Exists(p2) == false)
+                Directory.CreateDirectory(p2);
+
+            var p3 = Pathify(p2, TargetFramework);
+
+            if (Directory.Exists(p3) == false)
+                Directory.CreateDirectory(p3);
+
+            using (var stream = File.Create(Pathify(p3, FileName)))
             {
                 stream.Write(Contents, 0, Length);
             }
 
-            File.SetAttributes(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName), FileAttributes.ReadOnly);
+            File.SetAttributes(Pathify(p3, FileName), FileAttributes.ReadOnly);
         }
 
         public bool IsPublished()
@@ -222,9 +228,18 @@ namespace Assemblify.Core
             return leader.ToString();
         }
 
+        // we should have bool TryGetCandidate(AssemblyData Data, string Folderpaath, out AssemblyData Candidate)
+
         public static bool PublishedCandidateExists (AssemblyData Data, string Folderpath)
         {
-            return Directory.Exists(Pathify(Folderpath, Data.AssemblyName.Name, Data.MaxFramework, Data.AssemblyName.Version)); // TODO: Don't simply assume the file itself exists, so revisit this logic..
+            // An exact candidate is a match (obviously on name) on target framework and assembly version.
+
+            return File.Exists(Pathify(Folderpath, Data.AssemblyName.Name, Data.AssemblyName.Version, Data.MaxFramework, Data.AssemblyName.Name + ".dll")); // TODO: Don't simply assume the file itself exists, so revisit this logic..
+
+            // other matches are:
+            // same name, lower framwork version, same version
+            // same name, lower framework version, lower version
+            // same name, lower framework version, higher version
         }
 
         public static string GetPublishedCandidate (AssemblyData Data, string Folderpath)
@@ -232,7 +247,7 @@ namespace Assemblify.Core
             if (PublishedCandidateExists(Data, Folderpath) == false)
                 throw new ArgumentException("The specified assembly does not exist as a published assembly.");
 
-            return Pathify(Folderpath, Data.AssemblyName.Name, Data.MaxFramework, Data.AssemblyName.Version, Data.AssemblyName.Name + ".dll");
+            return Pathify(Folderpath, Data.AssemblyName.Name, Data.AssemblyName.Version, Data.MaxFramework, Data.AssemblyName.Name + ".dll");
 
             // TODO: Consider recursive uses here, ideally taking a single AssemblyFile and returning an array of AssemblyFile[] for each identified candidate DLL file.
         }
