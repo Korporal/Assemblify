@@ -179,7 +179,7 @@ namespace Assemblify.Core
             if (String.IsNullOrWhiteSpace(Folderpath))
                 throw new ArgumentException("The specified publish folder path is invalied.", nameof(Folderpath));
 
-            return (File.Exists(Pathify(Folderpath, FileTitle, TargetFramework, Name.Version, FileName)));
+            return (File.Exists(Pathify(Folderpath, FileTitle, Name.Version, TargetFramework,  FileName)));
         }
 
 
@@ -234,7 +234,22 @@ namespace Assemblify.Core
         {
             // An exact candidate is a match (obviously on name) on target framework and assembly version.
 
-            return File.Exists(Pathify(Folderpath, Data.AssemblyName.Name, Data.AssemblyName.Version, Data.MaxFramework, Data.AssemblyName.Name + ".dll")); // TODO: Don't simply assume the file itself exists, so revisit this logic..
+            if (File.Exists(Pathify(Folderpath, Data.AssemblyName.Name, Data.AssemblyName.Version, Data.MaxFramework, Data.AssemblyName.Name + ".dll"))) // TODO: Don't simply assume the file itself exists, so revisit this logic..
+                return true;
+
+            if (Directory.Exists(Pathify(Folderpath, Data.AssemblyName.Name)) == false)
+                return false;
+
+            var dirs = Directory.GetDirectories(Pathify(Folderpath, Data.AssemblyName.Name)).Select(s => new Version(Path.GetFileName(s))).Where(v => v > Data.AssemblyName.Version).OrderBy(v => v);
+
+            if (dirs.Any())
+                return true; // NOTE: We know there's at least one version that's a higher version than the one we want, so we shd return .First() when we eventually want it.
+
+            // For each of the returned dirs (if any) we must check to find the first of these that has a compatible FW version...
+            // e.g. we want v1.0.0.0 FW v4.5, we find a v1.0.0.1 and a v1.0.0.2 but v1.0.0.1 is FW v4.0 but v1.0.0.2 is FW v4.5 
+            // in other words we're choosing the lowest version that's a higher version than needed, that has the best FW version, in this case we'll choose v1.0.0.2 
+
+            return true;
 
             // other matches are:
             // same name, lower framwork version, same version

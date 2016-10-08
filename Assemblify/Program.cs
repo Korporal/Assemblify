@@ -1,4 +1,5 @@
 ﻿using Assemblify.Core;
+using System.Reflection;
 
 namespace TestAssemblify
 {
@@ -11,16 +12,16 @@ namespace TestAssemblify
 
             string assembly_folder = @"C:\assemblify";
 
-            //a = AssemblyFile.CreateFromFile(Assembly.GetAssembly(typeof(AssemblyFile)).Location);
+            a = AssemblyFile.CreateFromFile(Assembly.GetAssembly(typeof(AssemblyFile)).Location);
 
-            //// If this assembly has not yet been published into the designated folder, then publish it.
+            // If this assembly has not yet been published into the designated folder, then publish it.
 
-            //if (a.IsPublished() == false)
-            //    a.Publish();
+            if (a.IsPublished() == false)
+                a.Publish();
 
-            // Did the whole process actually work?
+            //Did the whole process actually work?
 
-            //p = a.IsPublished();
+            p = a.IsPublished();
 
             // Create an Assemblify AssemblyFile object from a DLL's path:
 
@@ -50,8 +51,8 @@ namespace TestAssemblify
 
             AssemblyFileOuter.AssemblyFileOuter s = new AssemblyFileOuter.AssemblyFileOuter();
 
-            var x = AssemblyFile.PublishedCandidateExists(a.UnsignedReferences[0], assembly_folder);
-            var f = AssemblyFile.GetPublishedCandidate(a.UnsignedReferences[0], assembly_folder);
+            var x = AssemblyFile.PublishedCandidateExists(a.UnsignedReferences[1], assembly_folder);
+            var f = AssemblyFile.GetPublishedCandidate(a.UnsignedReferences[1], assembly_folder);
         }
     }
 }
