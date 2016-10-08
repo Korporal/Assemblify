@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -114,7 +115,7 @@ namespace Assemblify.Core
 
             if (IsPublished(Folderpath))
             {
-                var s = File.OpenRead(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version, FileName));
+                var s = File.OpenRead(Pathify(Folderpath, FileTitle, TargetFramework.ToString(), Name.Version, FileName));
 
                 if (s.Length != Length)
                     throw new InvalidOperationException("An assembly with these characteristics has already been published that has a different length to the current assembly.");
@@ -138,18 +139,18 @@ namespace Assemblify.Core
             if (Directory.Exists(Pathify(Folderpath, FileTitle)) == false)
                 Directory.CreateDirectory(Pathify(Folderpath, FileTitle));
 
-            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFrameworkName)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFrameworkName));
+            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework.ToString())) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework.ToString()));
 
-            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version)) == false)
-                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version));
+            if (Directory.Exists(Pathify(Folderpath, FileTitle, TargetFramework.ToString(), Name.Version)) == false)
+                Directory.CreateDirectory(Pathify(Folderpath, FileTitle, TargetFramework.ToString(), Name.Version));
 
-            using (var stream = File.Create(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version, FileName)))
+            using (var stream = File.Create(Pathify(Folderpath, FileTitle, TargetFramework.ToString(), Name.Version, FileName)))
             {
                 stream.Write(Contents, 0, Length);
             }
 
-            File.SetAttributes(Pathify(Folderpath, FileTitle, TargetFrameworkName, Name.Version, FileName), FileAttributes.ReadOnly);
+            File.SetAttributes(Pathify(Folderpath, FileTitle, TargetFramework.ToString(), Name.Version, FileName), FileAttributes.ReadOnly);
         }
 
         public bool IsPublished()
@@ -175,7 +176,7 @@ namespace Assemblify.Core
         /// </summary>
         /// <param name="Parts"></param>
         /// <returns></returns>
-        private string Pathify(params object[] Parts)
+        private static string Pathify(params object[] Parts)
         {
             if (Parts.Length == 0)
                 throw new ArgumentException("The number of parts must be greater than zero.");
@@ -213,5 +214,17 @@ namespace Assemblify.Core
                 return Path.GetFileNameWithoutExtension(FileName);
             }
         }
+
+        #region Static Methods and Properties
+        public static string[] GetCandidates (AssemblyName Name, Version TargetFramework, string Folderpath)
+        {
+            List<string> candidates = new List<string>();
+
+            if (Directory.Exists(Pathify(Folderpath, Name.Name, TargetFramework.ToString(), Name.Version)))
+                candidates.Add(Pathify(Folderpath, Name.Name, TargetFramework.ToString(), Name.Version));
+
+            return candidates.ToArray();
+        }
+        #endregion
     }
 }
